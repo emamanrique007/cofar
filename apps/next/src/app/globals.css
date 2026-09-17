@@ -1,0 +1,32 @@
+@import "tailwindcss";
+:root {
+  color-scheme: light;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f5f7f5;
+  color: #173b2d;
+}
+button,
+.button {
+  border-radius: 0.5rem;
+  background: #166344;
+  color: white;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+input,
+select,
+textarea {
+  border: 1px solid #b6c6bc;
+  border-radius: 0.4rem;
+  padding: 0.65rem;
+  background: white;
+  width: 100%;
+}
+:focus-visible {
+  outline: 3px solid #cf8b16;
+  outline-offset: 3px;
+}

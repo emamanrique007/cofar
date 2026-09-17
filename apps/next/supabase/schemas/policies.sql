@@ -1,0 +1,16 @@
+alter table public.profiles enable row level security;
+alter table public.accounts enable row level security;
+alter table public.users_by_accounts enable row level security;
+alter table public.jobs enable row level security;
+alter table public.notifications enable row level security;
+alter table public.audit_logs enable row level security;
+create policy profiles_read on public.profiles for select to authenticated using (id = (select auth.uid()));
+create policy profiles_update on public.profiles for update to authenticated using (id = (select auth.uid())) with check (id = (select auth.uid()));
+create policy accounts_read on public.accounts for select to authenticated using (public.is_account_member(id));
+create policy memberships_read on public.users_by_accounts for select to authenticated using (user_id = (select auth.uid()));
+create policy jobs_read on public.jobs for select to authenticated using (public.is_account_member(account_id));
+create policy notifications_read on public.notifications for select to authenticated using (public.is_account_member(account_id));
+create policy audit_read on public.audit_logs for select to authenticated using (public.is_account_member(account_id));
+revoke all on public.profiles, public.accounts, public.users_by_accounts, public.jobs, public.notifications, public.audit_logs from anon, authenticated;
+grant select on public.profiles, public.accounts, public.users_by_accounts, public.jobs, public.notifications, public.audit_logs to authenticated;
+grant update(name) on public.profiles to authenticated;

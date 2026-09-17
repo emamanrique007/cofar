@@ -1,0 +1,6 @@
+---
+description: Supabase declarative schemas, tenant isolation and queue safety.
+globs: apps/next/supabase/**/*.sql,apps/next/src/utils/queue*,apps/next/src/trpc/**/*.ts
+alwaysApply: false
+---
+Apply supabase for SQL/RLS and queues for jobs. Protect the user path with auth and RLS; service-role access belongs only in server utilities. Keep queue writes and acknowledgements atomic. Test against local PostgreSQL before declaring a migration verified.

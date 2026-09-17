@@ -1,0 +1,85 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "sortTailwindcss": {
+    "stylesheet": "./apps/next/src/app/globals.css",
+    "functions": ["cn", "cva", "clsx", "twMerge"]
+  },
+  "sortImports": {
+    "newlinesBetween": false,
+    "customGroups": [
+      {
+        "groupName": "static-assets",
+        "elementNamePattern": [
+          "**/*.svg",
+          "**/*.svg?*",
+          "**/*.png",
+          "**/*.jpg",
+          "**/*.jpeg",
+          "**/*.gif",
+          "**/*.webp",
+          "**/*.avif",
+          "**/*.json",
+          "**/*.md",
+          "**/*.txt",
+          "**/*.tif",
+          "**/*.tiff",
+          "**/*.woff",
+          "**/*.woff2",
+          "**/*.css"
+        ]
+      }
+    ],
+    "groups": [
+      ["type-builtin", "type-external", "value-builtin", "value-external"],
+      {
+        "newlinesBetween": true
+      },
+      [
+        "type-internal",
+        "type-parent",
+        "type-sibling",
+        "type-index",
+        "value-internal",
+        "value-parent",
+        "value-sibling",
+        "value-index"
+      ],
+      {
+        "newlinesBetween": true
+      },
+      "static-assets",
+      "unknown"
+    ]
+  },
+  "arrowParens": "avoid",
+  "bracketSpacing": true,
+  "htmlWhitespaceSensitivity": "css",
+  "bracketSameLine": false,
+  "jsxSingleQuote": false,
+  "printWidth": 80,
+  "proseWrap": "preserve",
+  "quoteProps": "as-needed",
+  "semi": true,
+  "singleQuote": false,
+  "tabWidth": 2,
+  "trailingComma": "none",
+  "useTabs": false,
+  "vueIndentScriptAndStyle": false,
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.next/**",
+    "**/.turbo/**",
+    "**/next-env.d.ts",
+    "**/generated-database.types.ts",
+    "pnpm-lock.yaml",
+    "skills-lock.json",
+    ".agents/skills/find-skills/**",
+    ".agents/skills/vercel-react-best-practices/**",
+    ".agents/skills/grill-me/**",
+    ".agents/skills/grill-with-docs/**",
+    ".agents/skills/grilling/**",
+    ".agents/skills/domain-modeling/**"
+  ]
+}

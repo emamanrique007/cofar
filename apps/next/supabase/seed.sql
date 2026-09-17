@@ -1,0 +1,1 @@
+-- Create local test users through the Admin API. Never seed production credentials.

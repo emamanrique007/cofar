@@ -1,0 +1,39 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test-components:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: npm install --global corepack && corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:components
+
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: npm install --global corepack && corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check-format
+      - run: pnpm db:start
+      - run: pnpm db:test
+      - run: pnpm db:types && git diff --exit-code -- packages/types/src/generated-database.types.ts
+      - run: node scripts/setup-local-env.mjs
+      - run: pnpm check
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm e2e
+      - if: always()
+        run: pnpm db:stop

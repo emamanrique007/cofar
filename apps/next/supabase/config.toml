@@ -1,0 +1,47 @@
+project_id = "cofar"
+[api]
+enabled = true
+port = 55321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+[db]
+port = 55322
+shadow_port = 55320
+major_version = 17
+[db.migrations]
+enabled = true
+schema_paths = [
+  "schemas/extensions.sql",
+  "schemas/tables.sql",
+  "schemas/functions.sql",
+  "schemas/policies.sql",
+  "schemas/triggers.sql",
+  "schemas/storage.sql",
+  "schemas/realtime.sql"
+]
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+[studio]
+enabled = true
+port = 55323
+api_url = "http://127.0.0.1"
+[local_smtp]
+enabled = true
+port = 55324
+[storage]
+enabled = true
+file_size_limit = "20MiB"
+[auth]
+enabled = true
+site_url = "http://localhost:3005"
+additional_redirect_urls = ["http://localhost:3005/auth/callback"]
+jwt_expiry = 3600
+enable_signup = false
+[auth.email]
+# Enable email provider; auth.enable_signup=false still blocks registration.
+enable_signup = true
+enable_confirmations = true
+[analytics]
+enabled = false

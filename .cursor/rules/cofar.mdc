@@ -1,0 +1,7 @@
+---
+description: Cofar workspace stack, commands and skill routing.
+alwaysApply: true
+---
+Read AGENTS.md as the canonical project contract. Stack: pnpm + Turbo + Next + tRPC + Supabase with PGMQ. Load only relevant skills from .agents/skills. Use pnpm check, pnpm db:test and pnpm e2e. Preserve server/client boundaries, account RLS and durable queue acknowledgement. Never replace the stack or copy external project identifiers.
+
+Components: `components/<domain>/<Component>/<Component>.tsx`, with owned `*.helpers.ts` / `*.types.ts`. Pages only compose components; never import app implementations into components. HTTP routes use `utils/http.utils.ts` plus `vCommon.inputs` and domain schemas for parsing and responses. Keep tRPC on its native adapter.

@@ -1,0 +1,6 @@
+---
+description: TypeScript layout, environment validation and component conventions.
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+Use single-line-call-params and no-compat-re-exports when applicable. Keep named types in *.types.ts and import them with import type. Leave blank lines between import groups, declarations/functions, and logical setup/action/return blocks. Oxlint style/* and Oxfmt enforce the checked-in conventions. Use explicit JSX conditionals; no && rendering. Environment variables belong in the Zod schemas and derived env.types.ts, not ad hoc casts.

@@ -1,0 +1,64 @@
+{
+  "name": "cofar",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "compile": "turbo run compile",
+    "start": "pnpm --filter @cofar/next start",
+    "typecheck": "turbo run typecheck && tsc -p tsconfig.tools.json",
+    "lint": "oxlint apps packages scripts tests *.ts eslint-plugins --deny-warnings",
+    "format": "oxfmt --write . && pnpm lint:fix && oxfmt --write .",
+    "check-format": "oxfmt --check .",
+    "test": "vitest run",
+    "test:components": "turbo run test:components",
+    "check": "pnpm lint && pnpm boundaries && pnpm typecheck && pnpm test && pnpm test:components && pnpm build",
+    "boundaries": "node scripts/check-boundaries.mjs",
+    "db:start": "pnpm --filter @cofar/next exec supabase start",
+    "db:stop": "pnpm --filter @cofar/next exec supabase stop",
+    "db:reset": "pnpm --filter @cofar/next exec supabase db reset --local",
+    "db:test": "pnpm --filter @cofar/next exec supabase test db",
+    "db:types": "node scripts/db-types.mjs",
+    "db:status": "pnpm --filter @cofar/next exec supabase status",
+    "e2e": "playwright test",
+    "db:env": "node scripts/setup-local-env.mjs",
+    "lint:fix": "oxlint apps packages scripts tests *.ts eslint-plugins --deny-warnings --fix",
+    "gen:db-types:local": "node scripts/db-types.mjs",
+    "gen:db-types": "node scripts/db-types.mjs --remote",
+    "commit": "git-cz",
+    "prepare": "is-ci || (npx husky install && npx playwright install)"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "19.8.1",
+    "@commitlint/config-conventional": "19.8.1",
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.20.3",
+    "@typescript/typescript6": "^6.0.2",
+    "commitizen": "4.3.0",
+    "cz-conventional-changelog": "3.3.0",
+    "husky": "8.0.3",
+    "is-ci": "3.0.1",
+    "oxfmt": "0.68.0",
+    "oxlint": "1.83.0",
+    "supabase": "2.117.0",
+    "turbo": "2.10.13",
+    "typescript": "7.0.2",
+    "vitest": "5.0.1",
+    "zod": "4.6.5"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "packageManager": "pnpm@12.4.2"
+}

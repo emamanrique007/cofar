@@ -1,0 +1,50 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["tsconfig.json", ".env*"],
+  "globalPassThroughEnv": [
+    "NEXT_PUBLIC_*",
+    "SUPABASE_*",
+    "CRON_AUTH_SECRET",
+    "VERCEL*",
+    "ENV",
+    "TEST_USER_*"
+  ],
+  "tasks": {
+    "compile": {
+      "dependsOn": ["^compile"],
+      "outputs": ["dist/**"]
+    },
+    "build": {
+      "dependsOn": ["^compile"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": [
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "NEXT_PUBLIC_APP_URL",
+        "NEXT_PUBLIC_ENV",
+        "NEXT_PUBLIC_TIMEZONE"
+      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
+    },
+    "dev": {
+      "dependsOn": ["^compile"],
+      "cache": false,
+      "persistent": true
+    },
+    "typecheck": {
+      "dependsOn": ["^compile"]
+    },
+    "test:components": {
+      "dependsOn": ["^compile"],
+      "inputs": [
+        "src/components/**",
+        "src/ui/**",
+        "src/hooks/**",
+        "src/utils/form.utils.ts",
+        "src/test/components.setup.tsx",
+        "src/test/components.setup.types.ts",
+        "vitest.config.components.ts"
+      ]
+    }
+  }
+}
