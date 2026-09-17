@@ -18,4 +18,19 @@ const resultValidation = () => {
   });
 };
 
-export const vCron = { jobs: jobsValidation, result: resultValidation };
+const ticketsResultValidation = () => {
+  return z.object({
+    pending: z.number().int().nonnegative(),
+    assigned: z.number().int().nonnegative(),
+    unroutable: z.number().int().nonnegative(),
+    breached_first_response: z.number().int().nonnegative(),
+    breached_resolution: z.number().int().nonnegative()
+  });
+};
+
+export const vCron = {
+  jobs: jobsValidation,
+  tickets: jobsValidation,
+  result: resultValidation,
+  ticketsResult: ticketsResultValidation
+};

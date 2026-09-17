@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 
 import { router, userProcedure } from "./trpc";
+import { getPublicEnv } from "@/config/env.config";
 import { vAccount } from "@/validations/accounts.validations";
 
 export const accountsRouter = router({
@@ -22,7 +23,8 @@ export const accountsRouter = router({
   create: userProcedure
     .input(vAccount.create())
     .mutation(async ({ ctx, input }) => {
-      const params = { account_name: input.name };
+      const agent_timezone = getPublicEnv().NEXT_PUBLIC_TIMEZONE ?? "UTC";
+      const params = { account_name: input.name, agent_timezone };
       const { data, error } = await ctx.supabase.rpc("create_account", params);
 
       if (error) {

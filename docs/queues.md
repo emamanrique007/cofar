@@ -14,3 +14,19 @@ DLQ replay is an operator transaction: lock the dead-letter message, repair its 
 When adding external email/webhook effects, use job ID as an idempotency key at the destination. The current SQL transaction guarantees a single stored notification, not exactly-once network delivery.
 
 HTTP contract: `api(request).input(vCron.jobs()).handle(...).output(vCron.result())`. An empty body or `{}` is accepted; other body fields are rejected. Success returns `{ "data": { "read": 0, "completed": 0, "failed": 0, "stale": 0 } }`. Malformed JSON returns 400, invalid input 422, missing/invalid bearer authorization 401, and internal failures 500 without exposing database details. The HTTP utility validates headers, search parameters, body and route parameters before invoking the handler.
+
+## Support desk worker
+
+`POST /api/cron/tickets` with the same bearer secret runs the desk worker:
+`pending_ticket_assignments` → `auto_assign_ticket` per ticket →
+`sweep_ticket_sla`. It returns
+`{ "data": { "pending": 0, "assigned": 0, "unroutable": 0, "breached_first_response": 0, "breached_resolution": 0 } }`
+and uses the same status contract as the jobs route (400/401/422/500).
+
+This worker does not use PGMQ: routing and SLA are database state, not messages,
+so there is nothing to acknowledge and a missed run simply catches up on the
+next minute. Both actions are idempotent — an assigned ticket is no longer
+pending, and a breach is stamped once per target. Assignment assumes a single
+concurrent runner: the ticket row is locked, but two parallel workers could pass
+an agent's load cap. `apps/next/supabase/schedule.sql` registers it as
+`cofar-tickets-worker`, every minute, alongside the jobs worker.

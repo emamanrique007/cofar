@@ -40,7 +40,9 @@
         "src/components/**",
         "src/ui/**",
         "src/hooks/**",
-        "src/utils/form.utils.ts",
+        "src/types/**",
+        "src/utils/**",
+        "src/validations/**",
         "src/test/components.setup.tsx",
         "src/test/components.setup.types.ts",
         "vitest.config.components.ts"

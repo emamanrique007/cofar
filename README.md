@@ -4,22 +4,88 @@ Configuración: [entorno y Zod](docs/environment.md). Skills y reglas: [AGENTS.m
 
 Turborepo con pnpm, Next App Router, tRPC, React Query, Tailwind 4 y Supabase (Auth, PostgreSQL/RLS, Storage, Realtime, PGMQ y Cron).
 
-## Desarrollo local
+## Mesa de ayuda
 
-Requisitos: Node 24, Corepack y Docker. La versión de pnpm está fijada en package.json.
+Sistema de tickets para reemplazar el correo y las planillas: quién pidió qué,
+quién lo tiene, cuánto demora y qué pasó con cada solicitud.
+
+Dos perfiles sobre la misma cuenta. El **solicitante** es cualquier integrante:
+crea tickets y ve solamente los suyos. El **agente** es quien tiene jornada
+cargada en `ticket_agents`: ve la cola completa, toma tickets y los mueve. El
+**administrador** del espacio da de alta a las personas con su contraseña y,
+si son agentes, les carga el turno y las categorías que van a atender. La
+separación la aplican las políticas RLS, así que no depende de que la interfaz
+esconda un botón.
+
+Estados: `en cola → asignado → en curso → resuelto → cerrado`, con reapertura
+desde resuelto. Tomar un ticket es la única salida de la cola, y el solicitante
+solo confirma o reabre la resolución de sus propios tickets. Cada cambio deja un
+evento inmutable con actor, valor anterior, valor nuevo y evidencia.
+
+Las dos piezas elegidas del alcance opcional:
+
+- **Categorización automática.** Reglas de términos con peso por cuenta y un
+  clasificador determinístico (`packages/utils`). Quien pide elige la categoría,
+  y las reglas corren igual: si no coinciden, el ticket guarda el desacuerdo en
+  la bitácora para que el agente lo resuelva. Para lo que entra sin nadie que
+  elija (otro canal, una API) el clasificador asigna la categoría, y si no llega
+  a 4 puntos, no concentra el 55% de la evidencia o empata, queda en
+  `Sin clasificar`. La categoría fija la prioridad y la prioridad fija el SLA.
+  Cada corrección de un agente queda registrada.
+- **SLA por prioridad.** Compromisos de primera respuesta y resolución por
+  prioridad. El reloj no corre 24/7: las jornadas son de cada agente, así que el
+  plazo avanza sobre la unión de los turnos del equipo, cada uno en su huso. El
+  cron marca los vencimientos y los deja en la bitácora y en el tablero.
+
+Se sumaron búsqueda, filtros y tablero de métricas porque leen columnas que la
+mesa ya mantiene. Quedaron afuera adjuntos, notificaciones por correo,
+comentarios y reasignación.
+
+Para el ejercicio, tres documentos aparte: [DECISIONS.md](DECISIONS.md) con el
+modelo de datos, los estados, lo que descarté y qué rompería a 50.000 tickets
+por mes; [QUALITY.md](QUALITY.md) con qué probé, qué no y por qué; y
+[AI-USAGE.md](AI-USAGE.md) con cómo trabajé con los agentes. El detalle técnico
+está en [mesa de ayuda](docs/tickets.md), las decisiones de arquitectura en
+[ADR 0002](docs/adr/0002-support-desk.md) y la operación del worker en
+[colas](docs/queues.md).
+
+## Correrlo en local
+
+Requisitos: Node 24, Corepack y Docker. La versión de pnpm está fijada en
+package.json.
+
+Desde un clone limpio, o si borraste el Supabase local:
 
 ```sh
 corepack enable
 pnpm install --frozen-lockfile
-pnpm db:start
-pnpm db:env        # Genera .env.local con credenciales locales y CRON_AUTH_SECRET.
-# Si ya existe, conservarlo y configurar los valores manualmente.
+pnpm db:start      # Docker: Postgres, Auth, Studio
+pnpm db:env        # Crea apps/next/.env.local; no pisa uno que ya exista
+pnpm demo          # Reset de la base local + usuarios y tickets de prueba
 pnpm dev
 ```
 
-App: http://localhost:3005. Supabase API: 55321. PostgreSQL: 55322. Studio: http://localhost:55323. Correo local: 55324. Crear un usuario confirmado desde Auth en Studio; no hay credenciales predeterminadas ni registro público. Ingresar, crear una cuenta y enviar un trabajo. El worker crea una notificación almacenada y marca el trabajo como completado.
+Si `.env.local` quedó de un Supabase anterior, borralo y volvé a correr
+`pnpm db:env`. Las claves JWT cambian al recrear los volúmenes.
 
-Para procesar manualmente: POST `/api/cron/jobs` con `Authorization: Bearer <CRON_AUTH_SECRET>`. Para programarlo cada minuto, seguir [operación de colas](docs/queues.md).
+App: http://localhost:3005. API: 55321. Postgres: 55322. Studio: 55323.
+
+`pnpm demo` imprime las credenciales (contraseña `cofar1234` para los tres):
+
+- `admin@cofar.test` — administrador y agente
+- `agente@cofar.test` — agente
+- `solicitante@cofar.test` — solicitante
+
+No hay registro público. `pnpm db:reset` solo vacía la base local; después hace
+falta `pnpm demo:seed` (o otra vez `pnpm demo`).
+
+Para forzar el worker de la mesa, con `CRON_AUTH_SECRET` de
+`apps/next/.env.local`:
+
+```sh
+curl -X POST http://localhost:3005/api/cron/tickets \
+  -H "Authorization: Bearer $CRON_AUTH_SECRET"
+```
 
 ## Estructura
 
@@ -42,9 +108,15 @@ docs/                 arquitectura y operación
 pnpm check          # con entorno configurado: lint, boundaries, tipos, tests, build
 pnpm db:test        # PostgreSQL real: RLS, idempotencia, leases y DLQ
 pnpm db:types       # regeneración atómica de tipos desde Supabase local
-pnpm e2e            # flujo real de login, cuenta, cola y logout
+pnpm e2e            # login, ciclo del ticket y worker de la mesa
 pnpm check-format
 ```
+
+El esquema declarativo de `supabase/schemas/` es la fuente. Los cambios se
+escriben ahí y la migración se genera con
+`pnpm --filter @cofar/next exec supabase db diff -f <nombre>`, revisando la
+salida: el diff no emite privilegios de funciones ni publicaciones, así que esa
+parte se agrega a mano al final del archivo.
 
 `pnpm db:reset` borra datos solamente del Supabase local. No ejecutarlo sobre datos locales que deban conservarse. Tests e2e requieren .env.local y crean/eliminan su usuario temporal; nunca deben apuntar a producción.
 

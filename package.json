@@ -20,6 +20,8 @@
     "db:reset": "pnpm --filter @cofar/next exec supabase db reset --local",
     "db:test": "pnpm --filter @cofar/next exec supabase test db",
     "db:types": "node scripts/db-types.mjs",
+    "demo": "pnpm db:reset && pnpm demo:seed",
+    "demo:seed": "pnpm compile && node scripts/seed-demo.mjs",
     "db:status": "pnpm --filter @cofar/next exec supabase status",
     "e2e": "playwright test",
     "db:env": "node scripts/setup-local-env.mjs",

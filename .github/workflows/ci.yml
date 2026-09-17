@@ -10,10 +10,11 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-      - run: npm install --global corepack && corepack enable
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:components
 
@@ -22,10 +23,11 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-      - run: npm install --global corepack && corepack enable
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check-format
       - run: pnpm db:start

@@ -3,8 +3,14 @@ import { LoginForm } from "@/components/auth/LoginForm/LoginForm";
 const Login = () => {
   return (
     <main className="mx-auto max-w-md px-6 py-20">
-      <h1 className="mb-8 text-3xl font-semibold">Ingresar a Cofar</h1>
-      <LoginForm />
+      <p className="brand">
+        cofar<span className="brand-plus">+</span>
+      </p>
+      <p className="brand-sub mb-8">soporte</p>
+      <div className="card">
+        <h1 className="mb-6 text-2xl font-semibold">Ingresar</h1>
+        <LoginForm />
+      </div>
     </main>
   );
 };

@@ -18,3 +18,12 @@ select cron.schedule('cofar-jobs-worker', '* * * * *', $cron$
     timeout_milliseconds := 55000
   );
 $cron$);
+-- Support desk worker: routes unassigned tickets and marks SLA breaches.
+select cron.schedule('cofar-tickets-worker', '* * * * *', $cron$
+  select net.http_post(
+    url := (select rtrim(decrypted_secret, '/') from vault.decrypted_secrets where name = 'cofar_app_url') || '/api/cron/tickets',
+    headers := jsonb_build_object('Content-Type', 'application/json', 'Authorization', 'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name = 'cofar_cron_secret')),
+    body := '{}'::jsonb,
+    timeout_milliseconds := 55000
+  );
+$cron$);

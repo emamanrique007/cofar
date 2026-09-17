@@ -60,7 +60,7 @@ export const LoginForm = () => {
         <button disabled={busy} type="submit">
           {label}
         </button>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-muted">
           Solicitá tu acceso al administrador.
         </p>
       </form>
